@@ -16,6 +16,7 @@ jobs:
         with:
           concurrent_skipping: 'always'
           skip_after_successful_duplicate: 'true'
+          do_not_skip: '[]'
   build:
     needs: concurrency_check
     if: needs.concurrency_check.outputs.should_skip != 'true'
