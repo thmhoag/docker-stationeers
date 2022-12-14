@@ -24,6 +24,7 @@ LABEL APP_ID="$APP_ID" \
       MANIFEST_ID="$MANIFEST_ID"
 
 RUN useradd --uid "$UID" --user-group --shell /sbin/nologin "$USER"
+RUN mkdir $APP_DIR && chown -R $UID:$UID $APP_DIR
 
 WORKDIR $APP_DIR
 COPY --from=steamcmd "/root/.steam/steamcmd/linux32/steamapps/content/app_$APP_ID/depot_$DEPOT_ID/" .
