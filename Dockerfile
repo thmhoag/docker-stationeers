@@ -27,7 +27,7 @@ RUN useradd --uid "$UID" --user-group --shell /sbin/nologin "$USER"
 RUN mkdir $APP_DIR && chown -R $UID:$UID $APP_DIR
 
 WORKDIR $APP_DIR
-COPY --from=steamcmd "/root/.local/share/Steam/steamcmd/linux32/steamapps/content/app_$APP_ID/depot_$DEPOT_ID/" .
+COPY --from=steamcmd --chown=$UID:$UID "/root/.local/share/Steam/steamcmd/linux32/steamapps/content/app_$APP_ID/depot_$DEPOT_ID/" .
 
 USER $USER
 ENTRYPOINT ["./rocketstation_DedicatedServer.x86_64"]
