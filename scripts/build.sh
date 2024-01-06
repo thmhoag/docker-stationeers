@@ -14,8 +14,7 @@ CURRENT_VERSION=$(curl -s -H "Authorization: Bearer $TOKEN" "https://registry-1.
 echo "Current version: $CURRENT_VERSION"
 
 APP_INFO=$(docker run --rm steamcmd/steamcmd:latest +login anonymous +app_info_print $APP_ID +quit)
-MANIFEST_REGEX="\d{16,19}"
-NEW_VERSION=$(echo "$APP_INFO" | sed -e "1,/$DEPOT_ID/d" -e '1,/manifests/d' -e '/maxsize/,$d' | grep --perl-regexp --only "public\"\h+\"\K$MANIFEST_REGEX")
+NEW_VERSION=$(echo $APP_INFO | grep -oP '600762" \{\s*"config" \{\s*"oslist" "linux" "osarch" "64" \}\s*"manifests" \{\s*"public" \{\s*"gid" "\K\d+')
 echo "New version: $NEW_VERSION"
 
 if [ -z "$CURRENT_VERSION" ] || [ -z "$NEW_VERSION" ]; then
