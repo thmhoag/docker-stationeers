@@ -13,7 +13,26 @@ TOKEN=$(curl -s "https://auth.docker.io/token?service=registry.docker.io&scope=r
 CURRENT_VERSION=$(curl -s -H "Authorization: Bearer $TOKEN" "https://registry-1.docker.io/v2/${REPO}/manifests/latest" | jq ".history[0].v1Compatibility" -r | jq -r .config.Labels.MANIFEST_ID)
 echo "Current version: $CURRENT_VERSION"
 
-APP_INFO=$(docker run --rm steamcmd/steamcmd:latest +login anonymous +app_info_print $APP_ID +quit)
+MAX_RETRIES=10
+retry_count=0
+
+set +eo pipefail # let the following sub command fail and we'll handle it
+while [ $retry_count -lt $MAX_RETRIES ]; do
+    APP_INFO=$(docker run --rm steamcmd/steamcmd:latest +login anonymous +app_info_print $APP_ID +quit)
+    if [ -n "$APP_INFO" ]; then
+        echo "Steam app info retrieved successfully"
+        break
+    else
+        echo "Unable to get app info from Steam. Retrying..."
+        ((retry_count++))
+        sleep 1
+    fi
+done
+
+# make sure failures after this fail the script
+set -eo pipefail
+
+MANIFEST_REGEX="\d{16,19}"
 NEW_VERSION=$(echo $APP_INFO | grep -oP '600762" \{\s*"config" \{\s*"oslist" "linux" "osarch" "64" \}\s*"manifests" \{\s*"public" \{\s*"gid" "\K\d+')
 echo "New version: $NEW_VERSION"
 
